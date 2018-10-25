@@ -327,3 +327,15 @@ nav h1 a {
 .map-offline .warning-suggestion {
   font-size: .9em;
 }
+
+.skip-link {
+    display: block;
+    position: absolute;
+    top: 15px;
+    left: -1000px;
+    background-color: white;
+    padding: 5px 10px;
+}
+.skip-link:focus {
+    left: 15px;
+}
