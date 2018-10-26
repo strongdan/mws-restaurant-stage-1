@@ -1,0 +1,94 @@
+@charset "utf-8";
+/* CSS Document
+ * This stylesheet will be used for medium devices.
+ * It should be used for specific changes made
+ * for medium devices, like layouts.
+ *
+ * NOTE: * For changes that affect whole webiste, use style.css
+ *       * This has the original style.css's dimensions for layout
+ */
+
+
+
+
+/* ====================== Restaurant Listing (index.html) ====================== */
+/* TODO: Make restaurant list look good in medium devices. */
+#restaurants-list {
+  /* margin: 0; */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding: 20px 0 0 20px;
+}
+#restaurants-list li {
+  width: calc(50% - 30px);
+  max-width: 300px;
+  height: 440px;
+  position: relative;
+  margin: 0 20px 20px 0;
+}
+@media screen and (min-width: 900px) {
+  #restaurants-list li {
+    width: calc(33.33% - 27px);
+  }
+}
+@media screen and (min-width: 1200px) {
+  #restaurants-list li {
+    width: calc(25% - 25px);
+  }
+}
+#restaurants-list .restaurant-img {
+  /* margin: 0; */
+}
+#restaurants-list li h1 {
+  /* margin: 20px 0 10px; */
+  font-size: 1.2em;
+}
+#restaurants-list p {
+  /* margin: 0; */
+  /* font-size: .75em; */
+}
+#restaurants-list li a {
+  /* font-size: .75em; */
+  position: absolute;
+  bottom: 0px;
+}
+
+/* ====================== Restaurant Details ====================== */
+/* TODO: Make Restaurant details look good in medium devices */
+.inside #maincontent {
+  margin-top: 110px;
+  width: 50vw;
+  max-width: 420px;
+  min-width: 320px;
+}
+
+.inside #map-container {
+  top: 110px;
+  bottom: 0px;
+  /* height: calc(100vh - 210px); */
+  /* min-height: inherit; */
+  width: calc(100% - 420px);
+  z-index: initial;
+}
+@media screen and (max-width: 640px) {
+  .inside #map-container {
+    width: calc(100% - 320px);
+  }
+}
+@media screen and (min-width: 641px) and (max-width: 840px) {
+  .inside #map-container {
+    width: 50%;
+  }
+}
+.inside #restaurant-container, .inside #reviews-container {
+  width: 100%;
+}
+.inside #footer { /* not needed in default small devices layout */
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+}
+.inside #reviews-container {
+  padding-bottom: 80px;
+}
