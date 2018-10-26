@@ -46,3 +46,14 @@ self.addEventListener('activate', function(event) {
     })
   );
 });
+
+/** Hijack fetch requests and respond accordingly */
+self.addEventListener('fetch', function(event) {
+
+  // Default behavior: respond with cached elements, if any, falling back to network.
+  event.respondWith(
+    caches.match(event.request).then(function(response) {
+      return response || fetch(event.request);
+    })
+  );
+});
