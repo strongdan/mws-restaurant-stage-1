@@ -1,5 +1,5 @@
 # ignore file with secret API key
-js/secret.js
+src/js/secret.js
 
 # ignore dependencies
 node_modules/
@@ -10,3 +10,6 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# ignore dist folder, as this will be built from src folder.
+dist/
