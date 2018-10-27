@@ -66,16 +66,21 @@ static fetchRestaurants(callback) {
   /**
    * Fetch a restaurant by its ID.
    */
-  static fetchRestaurantById(id, callback) {
+static fetchRestaurantById(id, callback) {
     fetch(`${DBHelper.API_URL}/restaurants/${id}`).then(response => {
       if (!response.ok) return Promise.reject("Restaurant couldn't be fetched from network");
       return response.json();
     }).then(fetchedRestaurant => {
       // if restaurant could be fetched from network:
+      dbPromise.putRestaurants(fetchedRestaurant);
       return callback(null, fetchedRestaurant);
     }).catch(networkError => {
       // if restaurant couldn't be fetched from network:
-      return callback(networkError, null);
+      console.log(`${networkError}, trying idb.`);
+      dbPromise.getRestaurants(id).then(idbRestaurant => {
+        if (!idbRestaurant) return callback("Restaurant not found in idb either", null);
+        return callback(null, idbRestaurant);
+      });
     });
   }
 
