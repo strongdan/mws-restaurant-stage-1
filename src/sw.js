@@ -15,12 +15,9 @@ self.addEventListener('install', function(event) {
         '/', // this caches index.html
         '/restaurant.html',
         '/css/styles.css',
-        // add other css files here if you followed the mobile first approach
-        '/js/dbhelper.js',
-        '/js/secret.js',
+        '/css/medium.css',
         '/js/main.js',
         '/js/restaurant_info.js',
-        'js/register-sw.js', // In the video I forgot to add this newly created file
         'data/restaurants.json'
         // add other static assets here like logos, svg icons or any
         // other asset needed for your app UI 
