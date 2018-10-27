@@ -1,3 +1,6 @@
+import DBHelper from './dbhelper';
+import SECRET from './secret';
+
 let restaurant;
 var newMap;
 
@@ -18,7 +21,7 @@ const initMap = () => {
     } else {      
       if (navigator.onLine) {
         try {
-          self.newMap = L.map('map', {
+          newMap = L.map('map', {
             center: [restaurant.latlng.lat, restaurant.latlng.lng],
             zoom: 16,
             scrollWheelZoom: false
@@ -31,7 +34,7 @@ const initMap = () => {
               'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
             id: 'mapbox.streets'    
           }).addTo(newMap);
-          DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
+          DBHelper.mapMarkerForRestaurant(self.restaurant, newMap);
         } catch(error) {
           console.log("Map couldn't be initialized", error);
           // If an error occurred while trying to initialize the map, set map as offline
