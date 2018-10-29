@@ -10,7 +10,7 @@ export default class DBHelper {
    * API URL
    */
   static get API_URL() {
-    const port = 1337; // port where sails server will listen
+    const port = 1337; // port where sails server will listen.
     return `http://localhost:${port}`;
   }
 
@@ -20,67 +20,62 @@ export default class DBHelper {
    */
   static get DATABASE_URL() {
     const port = 1337 // Change this to your server port
-    return `http://localhost:${port}/data/restaurants.json`;
+    return `http://localhost:${port}/restaurants`;;
   }
 
+
+  static get IDB() {
+    const dbPromise = idb.open('reviews-db', 1, (upgradeDB) => {
+      // create object store
+      switch (upgradeDB.oldVersion) {
+        case 0:
+        case 1:
+          upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+      }
+    });
+    return dbPromise;
+  }
 
   /**
    * Fetch all restaurants.
    */
-static fetchRestaurants(callback) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', `${DBHelper.API_URL}/restaurants`);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const restaurants = JSON.parse(xhr.responseText);
-        dbPromise.putRestaurants(restaurants);
-        callback(null, restaurants);
-      } else { // Oops!. Got an error from server.
-        console.log(`Request failed. Returned status of ${xhr.status}, trying idb...`);
-        // if xhr request isn't code 200, try idb
-        dbPromise.getRestaurants().then(idbRestaurants => {
-          // if we get back more than 1 restaurant from idb, return idbRestaurants
-          if (idbRestaurants.length > 0) {
-            callback(null, idbRestaurants)
-          } else { // if we got back 0 restaurants return an error
-            callback('No restaurants found in idb', null);
-          }
+  static fetchRestaurants(callback) {
+    fetch(this.DATABASE_URL)
+    .then(response => response.json())
+    .then(restaurants => {
+      this.IDB
+      .then( db => {
+        const tx = db.transaction('restaurants', 'readwrite'),
+              restaurantStore = tx.objectStore('restaurants');
+        restaurants.forEach( restaurant => {
+          restaurantStore.put(restaurant);
         });
-      }
-    };
-    // XHR needs error handling for when server is down (doesn't respond or sends back codes)
-    xhr.onerror = () => {
-      console.log('Error while trying XHR, trying idb...');
-      // try idb, and if we get restaurants back, return them, otherwise return an error
-      dbPromise.getRestaurants().then(idbRestaurants => {
-        if (idbRestaurants.length > 0) {
-          callback(null, idbRestaurants)
-        } else {
-          callback('No restaurants found in idb', null);
-        }
+        callback(null, restaurants);
+        return tx.complete;
       });
-    }
-    xhr.send();
+    })
+    .catch((error) => {
+      console.log(`Request failed: ${error}`);
+      callback(error, null);
+    });
   }
 
   /**
    * Fetch a restaurant by its ID.
    */
 static fetchRestaurantById(id, callback) {
-    fetch(`${DBHelper.API_URL}/restaurants/${id}`).then(response => {
-      if (!response.ok) return Promise.reject("Restaurant couldn't be fetched from network");
-      return response.json();
-    }).then(fetchedRestaurant => {
-      // if restaurant could be fetched from network:
-      dbPromise.putRestaurants(fetchedRestaurant);
-      return callback(null, fetchedRestaurant);
-    }).catch(networkError => {
-      // if restaurant couldn't be fetched from network:
-      console.log(`${networkError}, trying idb.`);
-      dbPromise.getRestaurants(id).then(idbRestaurant => {
-        if (!idbRestaurant) return callback("Restaurant not found in idb either", null);
-        return callback(null, idbRestaurant);
-      });
+    // fetch all restaurants with proper error handling.
+    this.fetchRestaurants( (error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        const restaurant = restaurants.find(r => r.id == id);
+        if (restaurant) { // Got the restaurant
+          callback(null, restaurant);
+        } else { // Restaurant does not exist in the database
+          callback('Restaurant does not exist', null);
+        }
+      }
     });
   }
 
@@ -89,7 +84,7 @@ static fetchRestaurantById(id, callback) {
    */
   static fetchRestaurantByCuisine(cuisine, callback) {
     // Fetch all restaurants  with proper error handling
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    this.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -105,7 +100,7 @@ static fetchRestaurantById(id, callback) {
    */
   static fetchRestaurantByNeighborhood(neighborhood, callback) {
     // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    this.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -121,7 +116,7 @@ static fetchRestaurantById(id, callback) {
    */
   static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, callback) {
     // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    this.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -142,7 +137,7 @@ static fetchRestaurantById(id, callback) {
    */
   static fetchNeighborhoods(callback) {
     // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    this.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -160,7 +155,7 @@ static fetchRestaurantById(id, callback) {
    */
   static fetchCuisines(callback) {
     // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    this.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -218,7 +213,7 @@ static fetchRestaurantById(id, callback) {
     const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
       {title: restaurant.name,
       alt: restaurant.name,
-      url: DBHelper.urlForRestaurant(restaurant)
+      url: this.urlForRestaurant(restaurant)
       })
       marker.addTo(map);
     return marker;
